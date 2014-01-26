@@ -193,7 +193,7 @@ namespace {
   // index to KingDanger[].
   //
   // KingAttackWeights[PieceType] contains king attack weights by piece type
-  const int KingAttackWeights[] = { 0, 0, 11, -1, 36, 56 };  //scale = 16
+  const int KingAttackWeights[] = { 0, 0, 20, 20, 30, 50 };  //scale = 16
 
   // Bonuses for enemy's safe checks
   const int QueenContactCheck = 24;
