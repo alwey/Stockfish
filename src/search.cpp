@@ -154,10 +154,10 @@ void Search::init() {
 /// Search::perft() is our utility to verify move generation. All the leaf nodes
 /// up to the given depth are generated and counted and the sum returned.
 
-static size_t perft(Position& pos, Depth depth) {
+static uint64_t perft(Position& pos, Depth depth) {
 
   StateInfo st;
-  size_t cnt = 0;
+  uint64_t cnt = 0;
   CheckInfo ci(pos);
   const bool leaf = depth == 2 * ONE_PLY;
 
@@ -170,7 +170,7 @@ static size_t perft(Position& pos, Depth depth) {
   return cnt;
 }
 
-size_t Search::perft(Position& pos, Depth depth) {
+uint64_t Search::perft(Position& pos, Depth depth) {
   return depth > ONE_PLY ? ::perft(pos, depth) : MoveList<LEGAL>(pos).size();
 }
 
@@ -595,7 +595,7 @@ namespace {
     // Step 6. Razoring (skipped when in check)
     if (   !PvNode
         &&  depth < 4 * ONE_PLY
-        &&  eval + razor_margin(depth) < beta
+        &&  eval + razor_margin(depth) <= alpha
         &&  ttMove == MOVE_NONE
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY
         && !pos.pawn_on_7th(pos.side_to_move()))
@@ -635,29 +635,13 @@ namespace {
 
         pos.do_null_move(st);
         (ss+1)->skipNullMove = true;
-        nullValue = depth-R < ONE_PLY ? -qsearch<NonPV, false>(pos, ss+1, -beta, -alpha, DEPTH_ZERO)
-                                      : - search<NonPV>(pos, ss+1, -beta, -alpha, depth-R, !cutNode);
+        nullValue = depth-R < ONE_PLY ? -qsearch<NonPV, false>(pos, ss+1, -beta, -beta+1, DEPTH_ZERO)
+                                      : - search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
         (ss+1)->skipNullMove = false;
         pos.undo_null_move();
 
-        if (nullValue >= beta)
-        {
-            // Do not return unproven mate scores
-            if (nullValue >= VALUE_MATE_IN_MAX_PLY)
-                nullValue = beta;
-
-            if (depth < 12 * ONE_PLY)
-                return nullValue;
-
-            // Do verification search at high depths
-            ss->skipNullMove = true;
-            Value v = depth-R < ONE_PLY ? qsearch<NonPV, false>(pos, ss, alpha, beta, DEPTH_ZERO)
-                                        :  search<NonPV>(pos, ss, alpha, beta, depth-R, false);
-            ss->skipNullMove = false;
-
-            if (v >= beta)
-                return nullValue;
-        }
+        if (nullValue >= beta) // Do not return unproven mate scores
+            return nullValue >= VALUE_MATE_IN_MAX_PLY ? beta : nullValue;
     }
 
     // Step 9. ProbCut (skipped when in check)
@@ -770,7 +754,11 @@ moves_loop: // When in check and at SpNode search starts from here
 
       ext = DEPTH_ZERO;
       captureOrPromotion = pos.capture_or_promotion(move);
-      givesCheck = pos.gives_check(move, ci);
+
+      givesCheck =  type_of(move) == NORMAL && !ci.dcCandidates
+                  ? ci.checkSq[type_of(pos.piece_on(from_sq(move)))] & to_sq(move)
+                  : pos.gives_check(move, ci);
+
       dangerous =   givesCheck
                  || type_of(move) != NORMAL
                  || pos.advanced_pawn_push(move);
@@ -1150,7 +1138,9 @@ moves_loop: // When in check and at SpNode search starts from here
     {
       assert(is_ok(move));
 
-      givesCheck = pos.gives_check(move, ci);
+      givesCheck =  type_of(move) == NORMAL && !ci.dcCandidates
+                  ? ci.checkSq[type_of(pos.piece_on(from_sq(move)))] & to_sq(move)
+                  : pos.gives_check(move, ci);
 
       // Futility pruning
       if (   !PvNode
