@@ -194,7 +194,7 @@ namespace {
   // index to KingDanger[].
   //
   // KingAttackWeights[PieceType] contains king attack weights by piece type
-  const int KingAttackWeights[] = { 0, 0, 20, 20, 30, 50 };  //scale = 16
+  const int KingAttackWeights[] = { 0, 0, 25, 26, 44, 58 };  //scale = 16
 
   // Bonuses for enemy's safe checks
   const int QueenContactCheck = 24;
@@ -627,7 +627,7 @@ Value do_evaluate(const Position& pos) {
         // number and types of the enemy's attacking pieces, the number of
         // attacked and undefended squares around our king and the quality of
         // the pawn shelter (current 'score' value).
-        attackUnits =  std::min(20, (ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them] + 8) / (2*16) )
+        attackUnits =  std::min(20, (ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them] + 8) / (2 * 16) )
                      + 3 * (ei.kingAdjacentZoneAttacksCount[Them] + popcount<Max15>(undefended))
                      - mg_value(score) / 32;
 
