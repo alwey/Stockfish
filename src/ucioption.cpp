@@ -70,7 +70,6 @@ void init(OptionsMap& o) {
   o["Aggressiveness"]              = Option(100, 0, 200, on_eval);
   o["Cowardice"]                   = Option(100, 0, 200, on_eval);
   o["Min Split Depth"]             = Option(0, 0, 12, on_threads);
-  o["Max Threads per Split Point"] = Option(5, 4,  8, on_threads);
   o["Threads"]                     = Option(1, 1, MAX_THREADS, on_threads);
   o["Idle Threads Sleep"]          = Option(true);
   o["Hash"]                        = Option(32, 1, 16384, on_hash_size);
@@ -93,7 +92,7 @@ void init(OptionsMap& o) {
 
 std::ostream& operator<<(std::ostream& os, const OptionsMap& om) {
 
-  for (size_t idx = 0; idx < om.size(); ++idx)
+  for (size_t idx = 0; idx < om.size() + 1; ++idx) // idx could start from 1
       for (OptionsMap::const_iterator it = om.begin(); it != om.end(); ++it)
           if (it->second.idx == idx)
           {
