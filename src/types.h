@@ -181,14 +181,25 @@ enum Value {
   VALUE_ENSURE_INTEGER_SIZE_P = INT_MAX,
   VALUE_ENSURE_INTEGER_SIZE_N = INT_MIN,
 
-  PawnValueMg   = 198,   PawnValueEg   = 258,
-  KnightValueMg = 817,   KnightValueEg = 846,
-  BishopValueMg = 836,   BishopValueEg = 857,
-  RookValueMg   = 1270,  RookValueEg   = 1278,
-  QueenValueMg  = 2521,  QueenValueEg  = 2558,
+  _PawnValueMg   = 198,   _PawnValueEg   = 258,
+  _KnightValueMg = 817,   _KnightValueEg = 846,
+  _BishopValueMg = 836,   _BishopValueEg = 857,
+  _RookValueMg   = 1270,  _RookValueEg   = 1278,
+  _QueenValueMg  = 2521,  _QueenValueEg  = 2558,
 
   MidgameLimit  = 15581, EndgameLimit  = 3998
 };
+
+extern Value PawnValueMg;
+extern Value PawnValueEg;
+extern Value KnightValueMg;
+extern Value KnightValueEg;
+extern Value BishopValueMg;
+extern Value BishopValueEg;
+extern Value RookValueMg;
+extern Value RookValueEg;
+extern Value QueenValueMg;
+extern Value QueenValueEg;
 
 enum PieceType {
   NO_PIECE_TYPE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING,

@@ -28,7 +28,20 @@
 #include "uci.h"
 #include "syzygy/tbprobe.h"
 
+////#include <iostream>
+
 using std::string;
+
+Value PawnValueMg = _PawnValueMg;
+Value PawnValueEg = _PawnValueEg;
+Value KnightValueMg = _KnightValueMg;
+Value KnightValueEg = _KnightValueEg;
+Value BishopValueMg = _BishopValueMg;
+Value BishopValueEg = _BishopValueEg;
+Value RookValueMg = _RookValueMg;
+Value RookValueEg = _RookValueEg;
+Value QueenValueMg = _QueenValueMg;
+Value QueenValueEg = _QueenValueEg;
 
 UCI::OptionsMap Options; // Global object
 
@@ -41,6 +54,48 @@ void on_logger(const Option& o) { start_logger(o); }
 void on_threads(const Option&) { Threads.read_uci_options(); }
 void on_tb_path(const Option& o) { Tablebases::init(o); }
 
+inline Value rescale(int base, int incr, int scale) {
+  return Value(( 2 * base * (scale + incr) / scale + 1 ) / 2);
+}
+
+void on_value(const Option& ) {
+  int scaleMgValues = (int) Options["ScaleMgValues"];
+  int scaleEgValues = (int) Options["ScaleEgValues"];
+  ////std::cout << "scaleMgValues = " << scaleMgValues << std::endl;
+  ////std::cout << "scaleEgValues = " << scaleEgValues << std::endl;
+ 
+  PawnValueMg   = rescale( _PawnValueMg,   1*scaleMgValues, 10000 );
+  KnightValueMg = rescale( _KnightValueMg, 2*scaleMgValues, 10000 );
+  BishopValueMg = rescale( _BishopValueMg, 0*scaleMgValues, 10000 );
+  RookValueMg   = rescale( _RookValueMg,   2*scaleMgValues, 10000 );
+  QueenValueMg  = rescale( _QueenValueMg,  2*scaleMgValues, 10000 );
+  PawnValueEg   = rescale( _PawnValueEg,   0*scaleEgValues, 10000 );
+  KnightValueEg = rescale( _KnightValueEg, 1*scaleEgValues, 10000 );
+  BishopValueEg = rescale( _BishopValueEg, 2*scaleEgValues, 10000 );
+  RookValueEg   = rescale( _RookValueEg,   2*scaleEgValues, 10000 );
+  QueenValueEg  = rescale( _QueenValueEg,  1*scaleEgValues, 10000 );
+  ////std::cout << "PawnValueMg   = " << PawnValueMg   << std::endl;
+  ////std::cout << "KnightValueMg = " << KnightValueMg << std::endl;
+  ////std::cout << "BishopValueMg = " << BishopValueMg << std::endl;
+  ////std::cout << "RookValueMg   = " << RookValueMg   << std::endl;
+  ////std::cout << "QueenValueMg  = " << QueenValueMg  << std::endl;
+  ////std::cout << "PawnValueEg   = " << PawnValueEg   << std::endl;
+  ////std::cout << "KnightValueEg = " << KnightValueEg << std::endl;
+  ////std::cout << "BishopValueEg = " << BishopValueEg << std::endl;
+  ////std::cout << "RookValueEg   = " << RookValueEg   << std::endl;
+  ////std::cout << "QueenValueEg  = " << QueenValueEg  << std::endl;
+  
+  PieceValue[MG][PAWN]   = PawnValueMg;
+  PieceValue[MG][KNIGHT] = KnightValueMg;
+  PieceValue[MG][BISHOP] = BishopValueMg;
+  PieceValue[MG][ROOK]   = RookValueMg;
+  PieceValue[MG][QUEEN]  = QueenValueMg;
+  PieceValue[EG][PAWN]   = PawnValueEg;
+  PieceValue[EG][KNIGHT] = KnightValueEg;
+  PieceValue[EG][BISHOP] = BishopValueEg;
+  PieceValue[EG][ROOK]   = RookValueEg;
+  PieceValue[EG][QUEEN]  = QueenValueEg;
+}
 
 /// Our case insensitive less() function as required by UCI protocol
 bool ci_less(char c1, char c2) { return tolower(c1) < tolower(c2); }
@@ -71,6 +126,10 @@ void init(OptionsMap& o) {
   o["SyzygyProbeDepth"]      << Option(1, 1, 100);
   o["Syzygy50MoveRule"]      << Option(true);
   o["SyzygyProbeLimit"]      << Option(6, 0, 6);
+  o["ScaleMgValues"]         << Option(0, -3000, 10000, on_value);
+  o["ScaleEgValues"]         << Option(0, -3000, 10000, on_value);
+
+  on_value(Option());
 }
 
 
