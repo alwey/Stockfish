@@ -35,6 +35,7 @@ namespace UCI {
 
 /// 'On change' actions, triggered by an option's value change
 void on_clear_hash(const Option&) { TT.clear(); }
+void on_search(const Option&) { Search::init(); }
 void on_hash_size(const Option& o) { TT.resize(o); }
 void on_logger(const Option& o) { start_logger(o); }
 void on_threads(const Option&) { Threads.read_uci_options(); }
@@ -72,6 +73,10 @@ void init(OptionsMap& o) {
   o["SyzygyProbeDepth"]      << Option(1, 1, 100);
   o["Syzygy50MoveRule"]      << Option(true);
   o["SyzygyProbeLimit"]      << Option(6, 0, 6);
+  o["lmr00"] << Option(100, 0, 200, on_search);
+  o["lmr01"] << Option(100, 0, 200, on_search);
+  o["lmr10"] << Option(100, 0, 200, on_search);
+  o["lmr11"] << Option(100, 0, 200, on_search);
 }
 
 
