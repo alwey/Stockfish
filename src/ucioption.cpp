@@ -41,7 +41,7 @@ void on_hash_size(const Option& o) { TT.resize(o); }
 void on_logger(const Option& o) { start_logger(o); }
 void on_threads(const Option&) { Threads.read_uci_options(); }
 void on_tb_path(const Option& o) { Tablebases::init(o, UCI::variant_from_name(Options["UCI_Variant"])); }
-
+void on_lmr(const Option&) { Search::init(); }
 
 /// Our case insensitive less() function as required by UCI protocol
 bool CaseInsensitiveLess::operator() (const string& s1, const string& s2) const {
@@ -77,6 +77,13 @@ void init(OptionsMap& o) {
   o["SyzygyProbeDepth"]      << Option(1, 1, 100);
   o["Syzygy50MoveRule"]      << Option(true);
   o["SyzygyProbeLimit"]      << Option(6, 0, 6);
+
+  o["lmr01"]                 << Option(19500, 1, 900000, on_lmr);
+  o["fmc00"]                 << Option(10000, -20000, 900000, on_lmr);
+  o["fmc01"]                 << Option(8000, -20000, 50000, on_lmr);
+  o["fmc02"]                 << Option(10000, -20000, 50000, on_lmr);
+  o["fmc03"]                 << Option(24000, -20000, 900000, on_lmr);
+  o["fmc04"]                 << Option(50000, -20000, 900000, on_lmr);
 }
 
 

@@ -145,6 +145,7 @@ namespace {
             Variant variant = UCI::variant_from_name(value);
             sync_cout << "info string variant " << (string)Options["UCI_Variant"] << " startpos " << StartFENs[variant] << sync_endl;
             Tablebases::init(Options["SyzygyPath"], variant);
+	    Search::init();
         }
     }
     else

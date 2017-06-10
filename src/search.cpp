@@ -284,11 +284,13 @@ namespace {
 
 void Search::init() {
 
+  double d1 = int(Options["lmr01"]) / 10000.0;
+
   for (int imp = 0; imp <= 1; ++imp)
       for (int d = 1; d < 64; ++d)
           for (int mc = 1; mc < 64; ++mc)
           {
-              double r = log(d) * log(mc) / 1.95;
+              double r = log(d) * log(mc) / d1;
 
               Reductions[NonPV][imp][d][mc] = int(std::round(r));
               Reductions[PV][imp][d][mc] = std::max(Reductions[NonPV][imp][d][mc] - 1, 0);
@@ -298,10 +300,16 @@ void Search::init() {
                 Reductions[NonPV][imp][d][mc]++;
           }
 
+  double f0 = int(Options["fmc00"]) / 10000.0;
+  double f1 = int(Options["fmc01"]) / 10000.0;
+  double f2 = int(Options["fmc02"]) / 10000.0;
+  double f3 = int(Options["fmc03"]) / 10000.0;
+  double f4 = int(Options["fmc04"]) / 10000.0;
+
   for (int d = 0; d < 16; ++d)
   {
-      FutilityMoveCounts[0][d] = int(2.4 + 0.74 * pow(d, 1.78));
-      FutilityMoveCounts[1][d] = int(5.0 + 1.00 * pow(d, 2.00));
+      FutilityMoveCounts[0][d] = int(f3 + f0 * exp(f1 * d));
+      FutilityMoveCounts[1][d] = int(f4 + f0 * exp(f2 * d));
   }
 }
 
@@ -1107,9 +1115,9 @@ moves_loop: // When in check search starts from here
 #endif
                   ? pos.check_squares(type_of(pos.piece_on(from_sq(move)))) & to_sq(move)
                   : pos.gives_check(move);
-
+      int d1 = depth / ONE_PLY;
       moveCountPruning =   depth < 16 * ONE_PLY
-                        && moveCount >= FutilityMoveCounts[improving][depth / ONE_PLY];
+                        && moveCount >= FutilityMoveCounts[improving][d1];
 
       // Step 12. Singular and Gives Check Extensions
 
